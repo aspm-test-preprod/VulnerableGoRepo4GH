@@ -1,29 +1,13 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
-name: My workflow
+name: prod
 on:
-  push:
-    branches:
-      - "**"
   workflow_dispatch:
-permissions:
-  scm-token-own: read
-  scm-token-org: read
-  id-token: write
 jobs:
-  build:
+  deploy:
     steps:
-      - name: Get source code
-        uses: cloudbees-io/checkout@v1
-      - id: build-container
-        name: Build container image
-        uses: docker://gcr.io/kaniko-project/executor:debug
-        run: |
-          /kaniko/executor --context $CLOUDBEES_WORKSPACE --build-arg USER=cbp,TOKEN=${{ secrets.GH_SECURITY_PAT }} --dockerfile $CLOUDBEES_WORKSPACE/Dockerfile --tar-path $CLOUDBEES_WORKSPACE/container-image.tar --no-push
-      - id: upload-binary
-        name: Upload binary using action
-        uses: cloudbees-io/asset-chain-utils-preprod/upload-binary@v1
+      - uses: cloudbees-io/register-deployed-artifact@v2
         with:
-          file-path: container-image.tar
-          file-type: BINARY_CONTAINER
-          debug: "true"
+          labels: bb-Vuln4ghtest
+          artifact-id: 8473ab38-ac61-4f92-b0f2-ca10856da3be
+          target-environment: aspm-qa
